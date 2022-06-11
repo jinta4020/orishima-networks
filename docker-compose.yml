@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  https-portal:
+    container_name: app_https-portal
+    image: steveltn/https-portal:1
+    restart: on-failure
+    environment:
+      DOMAINS: ${HTTPS_PORTAL_DOMAINS}
+      CLIENT_MAX_BODY_SIZE: ${HTTPS_PORTAL_CLIENT_MAX_BODY_SIZE}
+      HSTS_MAX_AGE: ${HTTPS_PORTAL_HSTS_MAX_AGE}
+    volumes:
+      - https-portal-data:/var/lib/https-portal
+    networks:
+      - app-networks
+    ports:
+      - '80:80'
+      - '443:443'
+  database:
+    container_name: app_database
+    image: mysql:8.0
+    restart: on-failure
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PORT: ${MYSQL_PORT}
+      TZ: ${MYSQL_TZ}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-conf.d:/etc/mysql/conf.d
+      - ./mysql-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./mysql-sql.d:/docker-sql.d
+    networks:
+      - app-networks
+    ports:
+      - "${MYSQL_HOST_PORT}:3306"
+
+networks:
+  app-networks:
+    driver: bridge
+    external: true
+
+volumes:
+  https-portal-data:
+    driver: local
+  mysql-data:
+    driver: local

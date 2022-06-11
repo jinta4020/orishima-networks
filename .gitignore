@@ -1,0 +1,7 @@
+# Environment files
+.env
+mysql-entrypoint-initdb.d/*
+mysql-sql.d/*
+
+# Gitkeep
+!.gitkeep
